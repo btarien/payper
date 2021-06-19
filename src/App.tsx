@@ -1,25 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Grid, ThemeProvider } from "@material-ui/core";
+import React, { lazy, Suspense } from "react";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import Navbar from "./Navbar";
+import theme from "./theme";
+
+const Dashboard = lazy(() => import("./Dashboard"));
+const AddExpense = lazy(() => import("./AddExpense"));
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <Suspense fallback="loading...">
+          <Grid container direction="column" className="h-100">
+            <Grid item>
+              <Navbar />
+            </Grid>
+            <Grid item xs>
+              <Switch>
+                <Route path="/dashboard" component={Dashboard} />
+                <Route path="/new" component={AddExpense} />
+                <Redirect to="/dashboard" />
+              </Switch>
+            </Grid>
+          </Grid>
+        </Suspense>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
