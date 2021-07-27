@@ -16,41 +16,47 @@ import {
 import { ArrowBackIos } from "@material-ui/icons";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { Expense } from "./data";
+import { useDispatch, useSelector } from "react-redux";
+import { createExpense } from "../redux/actions/expenses.js";
+import { IExpense, IRootState } from "../type";
 
 function AddExpense() {
-  const [values, setValues] = React.useState<Expense>({
+  const users = useSelector((state: IRootState) => state.users);
+  const [forWhom, setforWhom] = React.useState(
+    users.reduce((acc, curr) => ({ ...acc, [curr.name]: false }), {})
+  );
+  const [values, setValues] = React.useState<IExpense>({
     title: "",
-    price: 0,
+    amount: 0,
     currency: "USD",
     date: new Date(),
     paidBy: "",
-  });
-  const [forWhom, setForWhom] = React.useState({
-    me: false,
-    alex: false,
-    brian: false,
-    julia: false,
-    thomas: false,
+    forWhom: [],
   });
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues((prevState) => {
-      return { ...prevState, [event.target.name]: event.target.value };
+      return {
+        ...prevState,
+        [event.target.name]:
+          event.target.name === "date"
+            ? new Date(event.target.value)
+            : event.target.value,
+      };
     });
   };
 
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setForWhom((prevState) => {
+    setforWhom((prevState) => {
       return { ...prevState, [event.target.name]: event.target.checked };
     });
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("submit");
-    //todo: api call
+    dispatch(createExpense({ ...values, forWhom }));
   };
 
   return (
@@ -96,9 +102,9 @@ function AddExpense() {
             />
             <TextField
               label="Amount"
-              name="price"
+              name="amount"
               type="number"
-              value={values.price}
+              value={values.amount}
               onChange={handleChange}
               fullWidth
             />
@@ -106,7 +112,7 @@ function AddExpense() {
               label="Date"
               name="date"
               type="date"
-              value={values.date}
+              value={values.date.toISOString().split("T")[0]}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               fullWidth
@@ -126,13 +132,13 @@ function AddExpense() {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={bool}
                           onChange={handleCheck}
                           name={name}
                           color="primary"
                         />
                       }
                       label={name}
+                      key={name}
                     />
                   );
                 })}

@@ -10,16 +10,18 @@ import {
 import { Add } from "@material-ui/icons";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { Expense, expenses } from "./data";
+import { IExpense, IRootState } from "../type";
+import { useSelector } from "react-redux";
 
 function Expenses() {
   const history = useHistory();
+  const expenses = useSelector((state: IRootState) => state.expenses);
 
   return (
     <Grid container className="h-100" direction="column">
       <Grid item xs>
         <List>
-          {expenses.map((expense: Expense, index: number) => {
+          {expenses.map((expense: IExpense, index: number) => {
             return (
               <ListItem key={index} divider>
                 <ListItemText
@@ -31,11 +33,11 @@ function Expenses() {
                     {new Intl.NumberFormat("en-us", {
                       style: "currency",
                       currency: "USD",
-                    }).format(expense.price)}
+                    }).format(expense.amount)}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  {/* <Typography variant="body2" color="textSecondary">
                     {new Intl.DateTimeFormat("en-US").format(expense.date)}
-                  </Typography>
+                  </Typography> */}
                 </Box>
               </ListItem>
             );
@@ -58,7 +60,7 @@ function Expenses() {
               {new Intl.NumberFormat("en-us", {
                 style: "currency",
                 currency: "USD",
-              }).format(expenses[0].price)}
+              }).format(expenses.length ? expenses[0].amount : 0.0)}
             </Typography>
           </Box>
           <Fab
@@ -82,7 +84,10 @@ function Expenses() {
                 style: "currency",
                 currency: "USD",
               }).format(
-                expenses.reduce((acc, expense) => acc + expense.price, 0)
+                expenses.reduce(
+                  (acc: any, expense: any) => acc + expense.price,
+                  0
+                )
               )}
             </Typography>
           </Box>
